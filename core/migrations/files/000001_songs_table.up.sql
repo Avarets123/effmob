@@ -1,0 +1,17 @@
+BEGIN;
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+CREATE TABLE songs (
+    id UUID NOT NULL DEFAULT uuid_generate_v4 (),
+    song VARCHAR(250) NOT NULL,
+    "group" VARCHAR(250) NOT NULL,
+    link VARCHAR(250),
+    release_date TIMESTAMP(3),
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP(3),
+    CONSTRAINT songs_pkey PRIMARY KEY (id)
+);
+
+COMMIT;

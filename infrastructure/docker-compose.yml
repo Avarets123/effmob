@@ -1,0 +1,45 @@
+---
+name: effmob
+services:
+  effect_db:
+    container_name: effect_db
+    restart: unless-stopped
+    image: postgres:12
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - ./var/pgdata:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:5432
+  effect_api:
+    container_name: effect_api
+    build: ../core
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      effect_db:
+        condition: service_healthy
+    ports:
+      - ${API_PORT}:${API_PORT}
+  docs:
+    build: ../docs
+    container_name: docs
+    restart: unless-stopped
+    depends_on:
+      - effect_api
+    environment: 
+      SWAGGER_JSON: /openapi.yaml
+    volumes:
+      - ../docs/openapi.yaml:/openapi.yaml
+    ports:
+      - 4444:8080
